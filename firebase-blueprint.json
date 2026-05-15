@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "Message": {
+      "title": "Message",
+      "description": "A message sent via the contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The sender's name" },
+        "email": { "type": "string", "format": "email", "description": "The sender's email" },
+        "phone": { "type": "string", "description": "The sender's phone number" },
+        "subject": { "type": "string", "description": "The subject of the inquiry" },
+        "message": { "type": "string", "description": "The message content" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the message was sent" }
+      },
+      "required": ["name", "phone", "message", "createdAt"]
+    },
+    "Donation": {
+      "title": "Donation",
+      "description": "A donation record",
+      "type": "object",
+      "properties": {
+        "amount": { "type": "number", "description": "The amount donated in INR" },
+        "donorName": { "type": "string", "description": "Name of the donor" },
+        "donorEmail": { "type": "string", "description": "Email of the donor" },
+        "status": { "type": "string", "enum": ["pending", "succeeded", "failed"], "description": "Status of the payment" },
+        "stripeSessionId": { "type": "string", "description": "The Stripe session ID" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of donation" }
+      },
+      "required": ["amount", "status", "createdAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Admin session record",
+      "type": "object",
+      "properties": {
+        "isAdmin": { "type": "boolean" },
+        "secret": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["isAdmin", "secret", "createdAt"]
+    }
+  },
+  "firestore": {
+    "messages": {
+      "schema": "Message",
+      "description": "User inquiries and contact form submissions"
+    },
+    "donations": {
+      "schema": "Donation",
+      "description": "Donation records"
+    },
+    "admins": {
+      "schema": "Admin",
+      "description": "Admin access control collection"
+    },
+    "admin_sessions": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "description": "Internal server-side session tracking"
+    }
+  }
+}
