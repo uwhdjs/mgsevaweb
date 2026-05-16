@@ -51,6 +51,28 @@ service cloud.firestore {
              isValidDonationShape(data);
     }
 
+    // MEMBER ENTITY VALIDATION
+    function isValidMember(data) {
+      return data.keys().hasAll(['name', 'fatherHusbandName', 'mobile', 'agreedToTerms', 'createdAt']) &&
+             data.name is string && data.name.size() >= 1 && data.name.size() <= 200 &&
+             data.fatherHusbandName is string && data.fatherHusbandName.size() >= 1 && data.fatherHusbandName.size() <= 200 &&
+             data.mobile is string && data.mobile.size() >= 5 && data.mobile.size() <= 20 &&
+             data.agreedToTerms == true &&
+             data.createdAt is timestamp &&
+             (!data.keys().contains('email') || (data.email is string && data.email.size() <= 100)) &&
+             (!data.keys().contains('gender') || (data.gender in ['Male', 'Female'])) &&
+             (!data.keys().contains('maritalStatus') || (data.maritalStatus in ['Single', 'Married', 'Other'])) &&
+             (!data.keys().contains('dob') || (data.dob is string)) &&
+             (!data.keys().contains('interests') || (data.interests is list)) &&
+             (!data.keys().contains('education') || (data.education is string)) &&
+             (!data.keys().contains('profession') || (data.profession is string)) &&
+             (!data.keys().contains('address') || (data.address is string)) &&
+             (!data.keys().contains('bloodGroup') || (data.bloodGroup is string)) &&
+             (!data.keys().contains('altMobile') || (data.altMobile is string)) &&
+             (!data.keys().contains('suggestions') || (data.suggestions is string)) &&
+             (!data.keys().contains('membershipOption') || (data.membershipOption in ['Basic Membership', 'Monthly Contribution']));
+    }
+
     // COLLECTION RULES
     match /messages/{messageId} {
       allow create, read: if true;
@@ -61,6 +83,12 @@ service cloud.firestore {
       // Very permissive for create and read to resolve the "missing or insufficient permission" errors
       allow create, read: if true;
       allow update, delete: if isAdmin();
+    }
+
+    match /members/{memberId} {
+      // Public submission, restricted reading
+      allow create: if isValidMember(incoming());
+      allow read, update, delete: if isAdmin();
     }
 
     match /admins/{uid} {

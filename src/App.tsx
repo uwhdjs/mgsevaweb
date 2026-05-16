@@ -41,6 +41,7 @@ import {
 } from 'react-router-dom';
 import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
+import MembershipForm from './components/MembershipForm';
 
 // Firebase Imports
 import { initializeApp } from 'firebase/app';
@@ -121,7 +122,7 @@ const AdminGuard = ({ children }: { children: React.ReactNode }) => {
 
 
 // Firestore Error Handler
-enum OperationType {
+export enum OperationType {
   CREATE = 'create',
   UPDATE = 'update',
   DELETE = 'delete',
@@ -138,22 +139,34 @@ interface FirestoreErrorInfo {
     userId?: string | null;
     email?: string | null;
     emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
   }
 }
 
-function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
   const errInfo: FirestoreErrorInfo = {
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
       userId: auth.currentUser?.uid,
       email: auth.currentUser?.email,
       emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData?.map(provider => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || []
     },
     operationType,
     path
   };
   console.error('Firestore Error: ', JSON.stringify(errInfo));
-  return new Error(JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
 }
 
 
@@ -175,7 +188,7 @@ const IMAGES = {
   gallery5: "https://lh3.googleusercontent.com/d/1B1pWQ_nkMLwMJGUfzTp7KnRVNjaeUmSH",
   communityService: "https://lh3.googleusercontent.com/d/1WOXeu4naHk4NUlV_d-fN_A7pb14aAaH3",
   medicalCamp: "https://lh3.googleusercontent.com/d/1HhUPBIIPkAapAHotXrHVS6oNcBh0KWEO",
-  volunteer1: "https://lh3.googleusercontent.com/d/1WwVv_KCksvBZVyyugCc0LWaKDOb5zegl",
+  volunteer1: "https://lh3.googleusercontent.com/d/1UHFvuXEMlecLidzX8PqLbOZBKymkss-z",
   relief1: "https://lh3.googleusercontent.com/d/1HMY4Foq8onQJbTTZ-S1YlwWSvgyfOvD3",
   gathering: "https://lh3.googleusercontent.com/d/1oMs7qizlDQuaacqWMI2_eeK9klsILD38",
   gallery6: "https://lh3.googleusercontent.com/d/1Cpk5xmHMMJkjItkbrenv6fE-YzrQi9Ax",
@@ -236,6 +249,23 @@ function MainSite() {
   const [timeLeft, setTimeLeft] = useState(120);
   const [donorInfo, setDonorInfo] = useState({ name: '', email: '' });
   const [donationStatus, setDonationStatus] = useState<{ type: 'success' | 'error' | 'cancel', message: string } | null>(null);
+
+  // Handle redirect from Membership Form
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shouldDonate = urlParams.get('donate') === 'true';
+    const amount = urlParams.get('amount');
+    const name = urlParams.get('name');
+    const email = urlParams.get('email');
+
+    if (shouldDonate) {
+      if (amount) setDonationAmount(parseInt(amount, 10));
+      if (name || email) setDonorInfo({ name: decodeURIComponent(name || ''), email: decodeURIComponent(email || '') });
+      setShowDonationModal(true);
+      // Clean up URL without refreshing
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, []);
   
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [formData, setFormData] = useState({
@@ -325,8 +355,8 @@ function MainSite() {
       setTimeout(() => setSubmitStatus('idle'), 5000);
     } catch (error: any) {
       setSubmitStatus('error');
-      const err = handleFirestoreError(error, OperationType.CREATE, 'messages');
-      alert(`Failed to send message: ${err.message}`);
+      // handleFirestoreError throws, so we just call it
+      handleFirestoreError(error, OperationType.CREATE, 'messages');
     } finally {
       setIsSubmitting(false);
     }
@@ -507,6 +537,12 @@ function MainSite() {
                 {item}
               </a>
             ))}
+            <Link 
+              to="/membership" 
+              className="text-xs uppercase tracking-widest font-extrabold text-orange-600 hover:text-orange-700 transition-all"
+            >
+              Join Us
+            </Link>
             <button 
               onClick={() => setShowDonationModal(true)}
               className="bg-red-500 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-red-600 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-red-100"
@@ -545,6 +581,13 @@ function MainSite() {
                   {item}
                 </a>
               ))}
+              <Link 
+                to="/membership" 
+                onClick={() => setIsMenuOpen(false)}
+                className="text-4xl font-serif font-black text-orange-500 uppercase tracking-tighter"
+              >
+                Join Us
+              </Link>
               <button 
                 onClick={() => {
                   setIsMenuOpen(false);
@@ -579,6 +622,12 @@ function MainSite() {
               Mangla Gauri Seva Sansthaan is a mission dedicated to providing relief to the underprivileged through healthcare and education in Alambagh, Lucknow.
             </p>
             <div className="flex flex-wrap gap-4">
+              <Link 
+                to="/membership"
+                className="bg-orange-500 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-orange-600 transition-all shadow-xl shadow-orange-100 hover:-translate-y-1"
+              >
+                Join As Member <Users className="w-5 h-5" />
+              </Link>
               <button 
                 onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
                 className="bg-red-500 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-red-600 transition-all shadow-xl shadow-red-100 hover:-translate-y-1"
@@ -854,7 +903,7 @@ function MainSite() {
                 { 
                   icon: <MapPin />, 
                   title: "Visit Us", 
-                  details: "559 Kha/88, Srinagar, Singarnagar, Alambagh, Lucknow",
+                  details: "559 Kha/88, Singar Nagar, Alambagh, Lucknow",
                   href: "https://www.google.com/maps/search/?api=1&query=Mangla+Gauri+Seva+Sansthaan+Lucknow+Srinagar+Alambagh"
                 },
                 { 
@@ -915,8 +964,8 @@ function MainSite() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all text-white" 
-                    placeholder="John Doe" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all text-white placeholder:text-slate-600" 
+                    placeholder="Full Name" 
                   />
                 </div>
                 <div className="space-y-2">
@@ -925,8 +974,8 @@ function MainSite() {
                     type="email" 
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500/50 transition-all text-white" 
-                    placeholder="john@example.com" 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-red-500/20 focus:border-red-500 transition-all text-white placeholder:text-slate-600" 
+                    placeholder="Email (Optional)" 
                   />
                 </div>
               </div>
@@ -1029,7 +1078,7 @@ function MainSite() {
               <div className="flex flex-wrap gap-4 text-sm">
                 <a href="#about" className="hover:text-red-500 transition-colors">About</a>
                 <a href="#activities" className="hover:text-red-500 transition-colors">Activities</a>
-                <a href="#gallery" className="hover:text-red-500 transition-colors">Gallery</a>
+                <Link to="/membership" className="hover:text-orange-500 transition-colors">Membership</Link>
                 <a href="#contact" className="hover:text-red-500 transition-colors">Contact</a>
               </div>
             </div>
@@ -1484,6 +1533,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<MainSite />} />
+        <Route path="/membership" element={<MembershipForm />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route 
           path="/admin" 

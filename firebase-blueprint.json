@@ -38,6 +38,34 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["isAdmin", "secret", "createdAt"]
+    },
+    "Member": {
+      "title": "Member",
+      "description": "A membership application record",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "fatherHusbandName": { "type": "string" },
+        "gender": { "type": "string", "enum": ["Male", "Female"] },
+        "maritalStatus": { "type": "string", "enum": ["Single", "Married", "Other"] },
+        "dob": { "type": "string", "format": "date" },
+        "education": { "type": "string" },
+        "profession": { "type": "string" },
+        "address": { "type": "string" },
+        "bloodGroup": { "type": "string" },
+        "mobile": { "type": "string" },
+        "altMobile": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "membershipOption": { "type": "string", "enum": ["Basic", "Monthly"] },
+        "interests": { 
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "suggestions": { "type": "string" },
+        "agreedToTerms": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "fatherHusbandName", "mobile", "agreedToTerms", "createdAt"]
     }
   },
   "firestore": {
@@ -52,6 +80,10 @@
     "admins": {
       "schema": "Admin",
       "description": "Admin access control collection"
+    },
+    "members": {
+      "schema": "Member",
+      "description": "Membership applications"
     },
     "admin_sessions": {
       "schema": {

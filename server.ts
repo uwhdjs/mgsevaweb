@@ -16,44 +16,59 @@ const firebaseConfig = JSON.parse(fs.readFileSync(path.join(process.cwd(), "fire
 // Initialize Firebase Admin
 if (getApps().length === 0) {
   try {
-    // In many environments, no args is best. 
-    // We only pass projectId if it's explicitly needed or environment is not set.
+    // Rely on default application credentials for Cloud Run (best for permissions)
     initializeApp();
     console.log("Firebase Admin initialized with default credentials");
   } catch (e: any) {
-    console.warn("Default initialization failed, trying with config:", e.message);
-    initializeApp({
-      projectId: firebaseConfig.projectId,
-    });
+    console.warn("Default initialization failed, using explicit config:", e.message);
+    try {
+      initializeApp({
+        projectId: firebaseConfig.projectId,
+      });
+      console.log("Firebase Admin initialized with Project ID:", firebaseConfig.projectId);
+    } catch (explicitErr: any) {
+      console.error("FATAL: Firebase initialization failed:", explicitErr.message);
+    }
   }
 }
 
 const adminApp = getApps()[0];
 
 // Access Firestore
-// Note: In firebase-admin, getFirestore() picks up the databaseId from the default app config if set,
-// or we can pass it explicitly.
-const databaseId = firebaseConfig.firestoreDatabaseId || '(default)';
-const db = getFirestore(adminApp, databaseId);
+// We try the configured database ID, falling back to (default) if it seems empty or incorrect
+const configDbId = firebaseConfig.firestoreDatabaseId;
+const databaseId = (configDbId && configDbId.trim() !== "") ? configDbId : '(default)';
+
+let firestoreDB = getFirestore(adminApp, databaseId);
 
 // Test connection and log internal errors for debugging
 async function testDBConnection() {
   try {
-    const testColl = db.collection("health_check");
     // We try a simple get to verify connectivity and permissions
+    const testColl = firestoreDB.collection("health_check");
     await testColl.limit(1).get();
     console.log(`Firestore (Admin) connected successfully to project: ${firebaseConfig.projectId}, db: ${databaseId}`);
   } catch (err: any) {
-    console.error("Firestore Admin Connection Error Details:", {
-      message: err.message,
-      code: err.code,
-      projectId: firebaseConfig.projectId,
-      databaseId: databaseId
-    });
-    // If we fail here, the server likely has connectivity or permission issues with Firestore
+    console.error(`CRITICAL: Firestore Admin Connection Error with db "${databaseId}":`, err.message);
+    
+    // If it failed and we weren't using (default), try (default) as a last resort
+    if (databaseId !== '(default)') {
+      console.log("Attempting fallback to '(default)' database...");
+      try {
+        const defaultDb = getFirestore(adminApp, '(default)');
+        await defaultDb.collection("health_check").limit(1).get();
+        firestoreDB = defaultDb;
+        console.log("Firestore (Admin) successfully connected to '(default)' fallback.");
+      } catch (fallbackErr: any) {
+        console.error("CRITICAL: Fallback to '(default)' also failed:", fallbackErr.message);
+      }
+    }
   }
 }
 testDBConnection();
+
+// Export for routes - ensure we use the potentially fallback DB
+export { firestoreDB };
 
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY) 
@@ -74,7 +89,7 @@ async function startServer() {
     if (fallbackSessions.has(sessionId)) return true;
 
     try {
-      const doc = await db.collection("admin_sessions").doc(sessionId).get();
+      const doc = await firestoreDB.collection("admin_sessions").doc(sessionId).get();
       if (doc.exists) {
         const data = doc.data();
         let createdAtMillis = 0;
@@ -106,7 +121,7 @@ async function startServer() {
     const sessionId = Math.random().toString(36).substring(2) + Date.now().toString(36);
     try {
       // Attempt Firestore write
-      await db.collection("admin_sessions").doc(sessionId).set({
+      await firestoreDB.collection("admin_sessions").doc(sessionId).set({
         createdAt: new Date(),
         id: sessionId,
         type: 'persistent'
@@ -167,7 +182,7 @@ async function startServer() {
   // Admin Data: Donations
   app.get("/api/admin/donations", checkAdmin, async (req, res) => {
     try {
-      const snapshot = await db.collection("donations").get();
+      const snapshot = await firestoreDB.collection("donations").get();
       const donations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
       // Sort in-memory to avoid index requirement
       donations.sort((a, b) => {
@@ -191,7 +206,7 @@ async function startServer() {
   // Admin Data: Messages
   app.get("/api/admin/messages", checkAdmin, async (req, res) => {
     try {
-      const snapshot = await db.collection("messages").get();
+      const snapshot = await firestoreDB.collection("messages").get();
       const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
       // Sort in-memory
       messages.sort((a, b) => {
@@ -212,9 +227,33 @@ async function startServer() {
     }
   });
 
+  // Admin Data: Members
+  app.get("/api/admin/members", checkAdmin, async (req, res) => {
+    try {
+      const snapshot = await firestoreDB.collection("members").get();
+      const members = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+      // Sort in-memory
+      members.sort((a, b) => {
+        const getTime = (val: any) => {
+          if (!val) return 0;
+          if (typeof val.toMillis === 'function') return val.toMillis();
+          if (val instanceof Date) return val.getTime();
+          if (typeof val === 'number') return val;
+          if (val._seconds) return val._seconds * 1000;
+          return 0;
+        };
+        return getTime(b.createdAt) - getTime(a.createdAt);
+      });
+      res.json(members);
+    } catch (error: any) {
+      console.error("Members API error:", error);
+      res.status(500).json({ error: `Server Firestore Error: ${error.message}` });
+    }
+  });
+
   app.delete("/api/admin/messages/:id", checkAdmin, async (req, res) => {
     try {
-      await db.collection("messages").doc(req.params.id).delete();
+      await firestoreDB.collection("messages").doc(req.params.id).delete();
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -223,7 +262,16 @@ async function startServer() {
 
   app.delete("/api/admin/donations/:id", checkAdmin, async (req, res) => {
     try {
-      await db.collection("donations").doc(req.params.id).delete();
+      await firestoreDB.collection("donations").doc(req.params.id).delete();
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.delete("/api/admin/members/:id", checkAdmin, async (req, res) => {
+    try {
+      await firestoreDB.collection("members").doc(req.params.id).delete();
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -295,12 +343,12 @@ async function startServer() {
   // API routes go ABOVE Vite middleware
   app.get("/api/health", async (req, res) => {
     try {
-      const testDoc = await db.collection("health_check").doc("status").get();
+      const testDoc = await firestoreDB.collection("health_check").doc("status").get();
       res.json({ 
         status: "ok", 
         firestore: "connected", 
         project: firebaseConfig.projectId,
-        dbId: firebaseConfig.firestoreDatabaseId || '(default)'
+        dbId: configDbId || '(default)'
       });
     } catch (err: any) {
       res.status(500).json({ status: "error", error: err.message });

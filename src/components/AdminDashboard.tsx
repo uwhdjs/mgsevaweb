@@ -11,7 +11,8 @@ import {
   Search,
   ChevronRight,
   TrendingUp,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Users
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -73,10 +74,31 @@ interface Donation {
   stripeSessionId?: string;
 }
 
+interface Member {
+  id: string;
+  name: string;
+  fatherHusbandName: string;
+  gender: string;
+  maritalStatus: string;
+  dob: string;
+  education: string;
+  profession: string;
+  address: string;
+  bloodGroup: string;
+  mobile: string;
+  altMobile: string;
+  email: string;
+  membershipOption: string;
+  interests: string[];
+  suggestions: string;
+  createdAt: any;
+}
+
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'messages' | 'donations' | 'gallery'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'messages' | 'donations' | 'gallery' | 'members'>('overview');
   const [messages, setMessages] = useState<Message[]>([]);
   const [donations, setDonations] = useState<Donation[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,12 +113,13 @@ export default function AdminDashboard() {
 
     try {
       setError(null);
-      const [messagesRes, donationsRes] = await Promise.all([
+      const [messagesRes, donationsRes, membersRes] = await Promise.all([
         window.fetch('/api/admin/messages', { headers: { 'x-admin-session': sessionId } }),
-        window.fetch('/api/admin/donations', { headers: { 'x-admin-session': sessionId } })
+        window.fetch('/api/admin/donations', { headers: { 'x-admin-session': sessionId } }),
+        window.fetch('/api/admin/members', { headers: { 'x-admin-session': sessionId } })
       ]);
 
-      if (messagesRes.status === 403 || donationsRes.status === 403) {
+      if (messagesRes.status === 403 || donationsRes.status === 403 || membersRes.status === 403) {
         sessionStorage.removeItem('isAdminAuthenticated');
         sessionStorage.removeItem('adminSessionId');
         window.location.href = '/admin/login';
@@ -111,9 +134,11 @@ export default function AdminDashboard() {
 
       const msgs = await messagesRes.json();
       const dons = await donationsRes.json();
+      const mems = await membersRes.json();
 
       if (Array.isArray(msgs)) setMessages(msgs);
       if (Array.isArray(dons)) setDonations(dons);
+      if (Array.isArray(mems)) setMembers(mems);
     } catch (err: any) {
       console.error("Fetch Error:", err);
       setError(err.message || "An unexpected error occurred");
@@ -135,6 +160,7 @@ export default function AdminDashboard() {
   const stats = [
     { label: 'Total Funds', value: `₹${totalDonations.toLocaleString('en-IN')}`, icon: IndianRupee, color: 'text-emerald-600' },
     { label: 'Messages', value: messages.length, icon: MessageSquare, color: 'text-blue-600' },
+    { label: 'Members', value: members.length, icon: Users, color: 'text-purple-600' },
     { label: 'Successful Payments', value: donations.filter(d => d.status === 'succeeded').length, icon: CheckCircle2, color: 'text-indigo-600' },
     { label: 'Pending Orders', value: donations.filter(d => d.status === 'pending').length, icon: Clock, color: 'text-orange-600' },
   ];
@@ -177,6 +203,25 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteMember = async (id: string) => {
+    if (window.confirm('Are you sure you want to delete this member application?')) {
+      const sessionId = sessionStorage.getItem('adminSessionId');
+      try {
+        const response = await window.fetch(`/api/admin/members/${id}`, {
+          method: 'DELETE',
+          headers: { 'x-admin-session': sessionId || '' }
+        });
+        if (response.ok) {
+          setMembers(prev => prev.filter(m => m.id !== id));
+        } else {
+          alert("Failed to delete member application.");
+        }
+      } catch (err) {
+        console.error('Error deleting member:', err);
+      }
+    }
+  };
+
   const formatDate = (dateValue: any) => {
     if (!dateValue) return 'N/A';
     // Handle Firestore Timestamp or ISO string
@@ -207,6 +252,12 @@ export default function AdminDashboard() {
   const filteredDonations = donations.filter(d => 
     d.donorName.toLowerCase().includes(searchTerm.toLowerCase()) || 
     d.donorEmail.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredMembers = members.filter(m => 
+    m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (m.email && m.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    m.mobile.includes(searchTerm)
   );
 
   if (loading) {
@@ -240,6 +291,7 @@ export default function AdminDashboard() {
             { id: 'overview', label: 'Overview', icon: LayoutDashboard },
             { id: 'donations', label: 'Donations', icon: IndianRupee },
             { id: 'messages', label: 'Messages', icon: MessageSquare },
+            { id: 'members', label: 'Members', icon: Users },
             { id: 'gallery', label: 'Activity Photos', icon: ImageIcon },
           ].map((tab) => (
             <button
@@ -612,6 +664,88 @@ export default function AdminDashboard() {
                       </div>
                     </motion.div>
                   ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'members' && (
+            <motion.div
+              key="members"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="space-y-6"
+            >
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-slate-50 border-b border-slate-200">
+                      <tr>
+                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Member Info</th>
+                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Option</th>
+                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Interests</th>
+                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Date</th>
+                        <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-sm">
+                      {filteredMembers.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="px-6 py-20 text-center text-slate-400 italic font-medium">
+                            No member applications found.
+                          </td>
+                        </tr>
+                      ) : filteredMembers.map((member) => (
+                        <tr key={member.id} className="hover:bg-purple-50/30 transition-colors group">
+                          <td className="px-6 py-5">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-slate-900">{member.name}</span>
+                              <span className="text-slate-500 text-xs">{member.mobile}</span>
+                              {member.email && <span className="text-slate-400 text-[10px]">{member.email}</span>}
+                              <div className="mt-2 text-[10px] text-slate-400 space-y-0.5">
+                                <p>F/H Name: <span className="text-slate-600 font-bold">{member.fatherHusbandName}</span></p>
+                                <p>Address: <span className="text-slate-600 font-bold">{member.address}</span></p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-5">
+                            <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase transition-colors ${
+                              member.membershipOption === 'Basic Membership' 
+                                ? 'bg-orange-100 text-orange-700' 
+                                : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {member.membershipOption}
+                            </span>
+                          </td>
+                          <td className="px-6 py-5">
+                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                              {member.interests && member.interests.length > 0 ? (
+                                member.interests.map((interest, idx) => (
+                                  <span key={idx} className="text-[9px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                                    {interest}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-slate-300 text-xs italic">No interests specified</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-5">
+                            <span className="text-xs font-medium text-slate-500 whitespace-nowrap">{formatDate(member.createdAt)}</span>
+                          </td>
+                          <td className="px-6 py-5 text-right">
+                             <button 
+                              onClick={() => handleDeleteMember(member.id)}
+                              className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </motion.div>
