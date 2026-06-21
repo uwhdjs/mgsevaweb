@@ -212,25 +212,25 @@ const ACTIVITIES = [
     title: "Environmental Care",
     description: "Actively participating in plantation drives to keep our city green and combat climate change.",
     icon: <TreePine className="w-6 h-6 text-green-500" />,
-    image: IMAGES.treePlantation
+    image: IMAGES.gathering
   },
   {
     title: "Supporting Disabled",
     description: "Empowering our specially-abled brothers and sisters through mobility support distributions and community inclusion.",
     icon: <Users className="w-6 h-6 text-purple-500" />,
-    image: IMAGES.volunteer1
+    image: IMAGES.gallery2
   },
   {
     title: "Winter Relief",
     description: "Distributing warm clothes and blankets to help the underprivileged survive the harsh winter nights in Lucknow.",
     icon: <Heart className="w-6 h-6 text-pink-500" />,
-    image: IMAGES.gathering
+    image: IMAGES.education
   },
   {
     title: "Child Education",
     description: "Reaching out to children in local schools to provide stationery, books, and educational guidance for a brighter future.",
     icon: <School className="w-6 h-6 text-blue-500" />,
-    image: IMAGES.education
+    image: IMAGES.treePlantation
   }
 ];
 
@@ -709,7 +709,7 @@ function MainSite() {
             <div className="space-y-6">
               <img src={IMAGES.healthcare} className="w-full aspect-[4/5] object-cover rounded-[2rem] shadow-md hover:scale-[1.02] transition-transform" alt="Medical Support" referrerPolicy="no-referrer" />
               <img src={IMAGES.treePlantation} className="w-full aspect-[4/5] object-cover rounded-[2rem] shadow-md hover:scale-[1.02] transition-transform" alt="Environment" referrerPolicy="no-referrer" />
-              <img src={IMAGES.gallery2} className="w-full aspect-[4/5] object-cover rounded-[2rem] shadow-md hover:scale-[1.02] transition-transform" alt="Community Service" referrerPolicy="no-referrer" />
+              <img src={IMAGES.volunteer1} className="w-full aspect-[4/5] object-cover rounded-[2rem] shadow-md hover:scale-[1.02] transition-transform" alt="Supporting Disabled" referrerPolicy="no-referrer" />
             </div>
             <div className="space-y-6 pt-12">
               <img src={IMAGES.distribution} className="w-full aspect-[4/5] object-cover rounded-[2rem] shadow-md hover:scale-[1.02] transition-transform" alt="Relief work" referrerPolicy="no-referrer" />
@@ -1057,6 +1057,116 @@ function MainSite() {
         </div>
       </section>
 
+      {/* Review Us Section */}
+      <section id="review" className="py-20 bg-slate-950 text-white relative overflow-hidden border-t border-white/5">
+        <div className="absolute top-0 left-0 w-64 h-64 bg-red-500/10 rounded-full -ml-32 -mt-32 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-500/10 rounded-full -mr-32 -mb-32 blur-3xl pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+            <span className="text-red-500 font-bold uppercase tracking-[0.2em] text-xs px-3 py-1 bg-red-500/10 rounded-full inline-block backdrop-blur-sm border border-red-500/20">
+              We value your support
+            </span>
+            <h2 className="text-3xl md:text-5xl font-serif font-black tracking-tight leading-tight">
+              Scan & Connect with Us
+            </h2>
+            <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+              Use your phone's camera to scan any of the QR codes below to leave us a star review on Google Maps, chat with us directly on WhatsApp, or make a direct donation.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {/* Card 1: Rate Us */}
+            <div className="flex flex-col items-center p-6 sm:p-8 bg-white text-slate-900 rounded-[2.5rem] shadow-2xl relative group hover:scale-[1.02] transition-all duration-300 border border-slate-100 w-full">
+              <div className="p-3 bg-red-500/10 rounded-2xl mb-4 text-red-500">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-6 h-6 animate-pulse" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.907c.961 0 1.36 1.252.583 1.848l-3.97 2.885a1 1 0 00-.364 1.118l1.52 4.674c.3.922-.755 1.688-1.538 1.118l-3.971-2.885a1 1 0 00-1.176 0l-3.97 2.885c-.783.57-1.838-.197-1.538-1.118l1.52-4.674a1 1 0 00-.364-1.118l-3.97-2.885c-.777-.596-.378-1.848.583-1.848h4.906a1 1 0 00.95-.69l1.519-4.674z"/>
+                </svg>
+              </div>
+              <h3 className="font-bold text-lg text-slate-900 mb-1">Scan to Rate Us</h3>
+              <p className="text-xs text-slate-500 mb-6 text-center">Rate us five stars and write a Google review instantly</p>
+              
+              <div className="bg-white p-4 rounded-3xl shadow-inner border border-slate-100 mb-6 inline-block">
+                <QRCodeSVG 
+                  value="https://www.google.com/maps/search/?api=1&query=Mangla+Gauri+Seva+Sansthaan+Lucknow+Alambagh"
+                  size={160}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+
+              <div className="w-full mt-auto">
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=Mangla+Gauri+Seva+Sansthaan+Lucknow+Alambagh"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full text-center block bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-red-500/10"
+                >
+                  Write Google Review
+                </a>
+              </div>
+            </div>
+
+            {/* Card 2: Chat Us */}
+            <div className="flex flex-col items-center p-6 sm:p-8 bg-white text-slate-900 rounded-[2.5rem] shadow-2xl relative group hover:scale-[1.02] transition-all duration-300 border border-slate-100 w-full">
+              <div className="p-3 bg-emerald-500/10 rounded-2xl mb-4 text-emerald-600">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6 animate-pulse" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+              </div>
+              <h3 className="font-bold text-lg text-slate-900 mb-1">Scan to Chat</h3>
+              <p className="text-xs text-slate-500 mb-6 text-center">Chat with our representative directly on WhatsApp</p>
+              
+              <div className="bg-white p-4 rounded-3xl shadow-inner border border-slate-100 mb-6 inline-block">
+                <QRCodeSVG 
+                  value="https://wa.me/919695712713"
+                  size={160}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+
+              <div className="w-full mt-auto">
+                <a 
+                  href="https://wa.me/919695712713"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full text-center block bg-emerald-500 hover:bg-emerald-600 text-white py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-emerald-500/10"
+                >
+                  Start WhatsApp Chat
+                </a>
+              </div>
+            </div>
+
+            {/* Card 3: Donate UPI */}
+            <div className="flex flex-col items-center p-6 sm:p-8 bg-white text-slate-900 rounded-[2.5rem] shadow-2xl relative group hover:scale-[1.02] transition-all duration-300 border border-slate-100 w-full">
+              <div className="p-3 bg-red-500/10 rounded-2xl mb-4 text-red-500">
+                <Heart className="w-6 h-6 text-red-500 fill-red-500/10 animate-bounce" />
+              </div>
+              <h3 className="font-bold text-lg text-slate-900 mb-1">Scan to Donate</h3>
+              <p className="text-xs text-slate-500 mb-6 text-center">Support our food, education, and blood drive operations</p>
+              
+              <div className="bg-white p-4 rounded-3xl shadow-inner border border-slate-100 mb-6 inline-block">
+                <QRCodeSVG 
+                  value="upi://pay?pa=manglagaurisevasansthan@oksbi&pn=Mangla%20Gauri%20Seva%20Sansthaan"
+                  size={160}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+
+              <div className="w-full mt-auto">
+                <a 
+                  href="upi://pay?pa=manglagaurisevasansthan@oksbi&pn=Mangla%20Gauri%20Seva%20Sansthaan"
+                  className="w-full text-center block bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-red-500/10"
+                >
+                  Donate via UPI
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-12 bg-slate-950 text-slate-400 text-center border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6">
@@ -1080,6 +1190,7 @@ function MainSite() {
                 <a href="#activities" className="hover:text-red-500 transition-colors">Activities</a>
                 <Link to="/membership" className="hover:text-orange-500 transition-colors">Membership</Link>
                 <a href="#contact" className="hover:text-red-500 transition-colors">Contact</a>
+                <a href="#review" className="hover:text-red-500 transition-colors">Review Us</a>
               </div>
             </div>
           </div>
