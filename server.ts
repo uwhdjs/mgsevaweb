@@ -3,6 +3,8 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import cors from "cors";
 import Stripe from "stripe";
+import Razorpay from "razorpay";
+import crypto from "crypto";
 import dotenv from "dotenv";
 import { initializeApp, getApps } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
@@ -73,6 +75,18 @@ export { firestoreDB };
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY) 
   : null;
+
+const getRazorpayInstance = () => {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  if (!keyId || !keySecret) {
+    return null;
+  }
+  return new Razorpay({
+    key_id: keyId,
+    key_secret: keySecret,
+  });
+};
 
 async function startServer() {
   const app = express();
@@ -336,6 +350,103 @@ async function startServer() {
       const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
       res.status(200).json({ status: session.payment_status });
     } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // API Route: Create Razorpay Order
+  app.post("/api/create-razorpay-order", async (req, res) => {
+    try {
+      const { amount, donationId, donorName, donorEmail } = req.body;
+      if (!amount || amount < 50) {
+        return res.status(400).json({ error: "Minimum donation amount is ₹50" });
+      }
+
+      const rzp = getRazorpayInstance();
+      if (!rzp) {
+        // Mock mode if Razorpay is not configured (so they can test it easily)
+        console.log("Razorpay is not configured. Creating a mock order.");
+        return res.status(200).json({
+          id: `order_mock_${Math.random().toString(36).substring(2, 10)}`,
+          amount: amount * 100,
+          currency: "INR",
+          mock: true
+        });
+      }
+
+      const options = {
+        amount: amount * 100, // amount in paise
+        currency: "INR",
+        receipt: `receipt_${donationId}`,
+        notes: {
+          donorName: donorName || "Anonymous",
+          donorEmail: donorEmail || "",
+          donationId: donationId || ""
+        }
+      };
+
+      const order = await rzp.orders.create(options);
+      res.status(200).json({
+        id: order.id,
+        amount: order.amount,
+        currency: order.currency,
+        mock: false
+      });
+    } catch (error: any) {
+      console.error("Razorpay Order Creation Error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // API Route: Verify Razorpay Payment Signature
+  app.post("/api/verify-razorpay-payment", async (req, res) => {
+    try {
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, donationId, isMock } = req.body;
+
+      if (isMock) {
+        // Simulate database update for mock testing
+        if (donationId) {
+          await firestoreDB.collection("donations").doc(donationId).update({
+            status: 'succeeded',
+            razorpayPaymentId: `pay_mock_${Math.random().toString(36).substring(2, 10)}`,
+            razorpayOrderId: razorpay_order_id || 'order_mock_123',
+            updatedAt: new Date()
+          });
+        }
+        return res.status(200).json({ success: true, message: "Mock payment verified successfully" });
+      }
+
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
+      if (!keySecret) {
+        return res.status(500).json({ error: "Razorpay server secret key is not configured" });
+      }
+
+      const generated_signature = crypto
+        .createHmac("sha256", keySecret)
+        .update(razorpay_order_id + "|" + razorpay_payment_id)
+        .digest("hex");
+
+      if (generated_signature === razorpay_signature) {
+        if (donationId) {
+          await firestoreDB.collection("donations").doc(donationId).update({
+            status: 'succeeded',
+            razorpayPaymentId: razorpay_payment_id,
+            razorpayOrderId: razorpay_order_id,
+            updatedAt: new Date()
+          });
+        }
+        res.status(200).json({ success: true, message: "Payment verified successfully" });
+      } else {
+        if (donationId) {
+          await firestoreDB.collection("donations").doc(donationId).update({
+            status: 'failed',
+            updatedAt: new Date()
+          });
+        }
+        res.status(400).json({ success: false, message: "Invalid payment signature" });
+      }
+    } catch (error: any) {
+      console.error("Razorpay Verification Error:", error);
       res.status(500).json({ error: error.message });
     }
   });

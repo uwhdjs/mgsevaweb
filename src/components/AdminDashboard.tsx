@@ -69,9 +69,14 @@ interface Donation {
   amount: number;
   donorName: string;
   donorEmail: string;
+  donorPhone?: string;
+  donorAddress?: string;
+  donationPurpose?: string;
   status: 'pending' | 'succeeded' | 'failed';
   createdAt: any;
   stripeSessionId?: string;
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
 }
 
 interface Member {
@@ -546,9 +551,25 @@ export default function AdminDashboard() {
                       ) : filteredDonations.map((donation) => (
                         <tr key={donation.id} className="hover:bg-orange-50/30 transition-colors group">
                           <td className="px-6 py-5">
-                            <div className="flex flex-col">
+                            <div className="flex flex-col space-y-1">
                               <span className="font-bold text-slate-900 leading-none">{donation.donorName || 'Anonymous'}</span>
-                              <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider mt-1.5">{donation.donorEmail || 'No Email'}</span>
+                              <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                                <span className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">{donation.donorEmail || 'No Email'}</span>
+                                {donation.donorPhone && (
+                                  <>
+                                    <span className="text-slate-300">•</span>
+                                    <span className="text-slate-600 text-[10px] font-mono font-semibold">{donation.donorPhone}</span>
+                                  </>
+                                )}
+                              </div>
+                              {donation.donorAddress && (
+                                <p className="text-xs text-slate-500 max-w-md mt-1 leading-relaxed"><strong className="text-slate-700">Addr:</strong> {donation.donorAddress}</p>
+                              )}
+                              {donation.donationPurpose && (
+                                <span className="inline-block self-start text-[9px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded mt-1 uppercase tracking-wide">
+                                  🎯 {donation.donationPurpose}
+                                </span>
+                              )}
                             </div>
                           </td>
                           <td className="px-6 py-5">
@@ -572,8 +593,14 @@ export default function AdminDashboard() {
                             <span className="text-xs font-medium text-slate-500">{formatDate(donation.createdAt)}</span>
                           </td>
                           <td className="px-6 py-5">
-                            <span className="text-[10px] font-mono text-slate-400 bg-slate-50 p-1 rounded group-hover:bg-white transition-colors">
-                              {donation.stripeSessionId || 'N/A'}
+                            <span className="text-[10px] font-mono text-slate-500 bg-slate-50 p-1.5 rounded group-hover:bg-white transition-colors block max-w-[120px] truncate" title={donation.stripeSessionId || donation.razorpayPaymentId || donation.razorpayOrderId}>
+                              {donation.stripeSessionId 
+                                ? `Stripe: ${donation.stripeSessionId}` 
+                                : donation.razorpayPaymentId 
+                                  ? `Rzp: ${donation.razorpayPaymentId}` 
+                                  : donation.razorpayOrderId 
+                                    ? `Rzp Ord: ${donation.razorpayOrderId}` 
+                                    : 'N/A'}
                             </span>
                           </td>
                           <td className="px-6 py-5 text-right">

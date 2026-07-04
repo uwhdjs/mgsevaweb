@@ -8,7 +8,8 @@ import {
   ArrowLeft,
   ChevronDown
 } from 'lucide-react';
-import { db, auth, handleFirestoreError, OperationType } from '../App';
+import { db, auth, handleFirestoreError } from '../App';
+import { OperationType } from '../types';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
 

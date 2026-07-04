@@ -2,5 +2,7 @@
   "name": "Mangla Gauri Seva Sansthaan",
   "description": "A dedicated NGO in Lucknow providing blood donation services, food distribution, education for children, and support for the specially-abled.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }
