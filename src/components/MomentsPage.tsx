@@ -363,7 +363,7 @@ export default function MomentsPage() {
       {/* Footer copyright */}
       <footer className="py-12 bg-slate-950 text-slate-400 text-center border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 space-y-2">
-          <p className="text-xs">© 2024 Mangla Gauri Seva Sansthaan. All Rights Reserved.</p>
+          <p className="text-xs">© 2026 Mangla Gauri Seva Sansthaan. All Rights Reserved.</p>
           <p className="text-[10px] uppercase tracking-widest text-slate-600">Built for selfless community service</p>
         </div>
       </footer>

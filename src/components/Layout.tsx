@@ -37,7 +37,7 @@ export default function Layout({ children }: LayoutProps) {
   const [isDonating, setIsDonating] = useState(false);
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [donationAmount, setDonationAmount] = useState<number>(500);
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'razorpay' | 'upi' | 'bank'>('razorpay');
+  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'razorpay' | 'upi' | 'bank'>('upi');
   const [showQRCode, setShowQRCode] = useState(false);
   const [isPaid, setIsPaid] = useState(false);
   const [timeLeft, setTimeLeft] = useState(120);
@@ -389,6 +389,34 @@ export default function Layout({ children }: LayoutProps) {
     }
   };
 
+  const handleUPIInitiate = async () => {
+    setIsDonating(true);
+    const path = 'donations';
+    try {
+      try {
+        await addDoc(collection(db, path), {
+          amount: donationAmount,
+          donorName: donorInfo.name || 'Anonymous',
+          donorEmail: donorInfo.email || '',
+          donorPhone: donorInfo.phone || '',
+          donorAddress: donorInfo.address || '',
+          donationPurpose: donorInfo.purpose || 'General Social Welfare',
+          status: 'succeeded',
+          createdAt: serverTimestamp()
+        });
+        
+        setShowQRCode(true);
+      } catch (err) {
+        throw handleFirestoreError(err, OperationType.CREATE, path);
+      }
+    } catch (error) {
+      console.error("UPI Donation Save Error:", error);
+      setDonationStatus({ type: 'error', message: 'Failed to record donation. Please try again.' });
+    } finally {
+      setIsDonating(false);
+    }
+  };
+
   const progressPercentage = donationStats.loaded 
     ? Math.min(100, Math.round((donationStats.current / donationStats.target) * 100))
     : 0;
@@ -623,7 +651,7 @@ export default function Layout({ children }: LayoutProps) {
               </div>
             </div>
           </div>
-          <p className="text-sm">© 2024 Mangla Gauri Seva Sansthaan. All Rights Reserved.</p>
+          <p className="text-sm">© 2026 Mangla Gauri Seva Sansthaan. All Rights Reserved.</p>
           <p className="text-[10px] mt-2 uppercase tracking-widest text-slate-600">Built for selfless community service in Lucknow</p>
         </div>
       </footer>
@@ -693,102 +721,44 @@ export default function Layout({ children }: LayoutProps) {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center py-4 space-y-6"
                   >
-                    {paymentMethod === 'bank' ? (
-                      <div className="space-y-4 text-left">
-                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
-                          <h4 className="font-bold text-slate-900 border-b border-slate-200 pb-2 flex items-center gap-2 text-sm uppercase tracking-wider">
-                            <Building className="w-4 h-4 text-red-500" /> Bank Transfer Details
-                          </h4>
-                          <div className="space-y-2 text-xs text-slate-600">
-                            <p><strong className="text-slate-800">Account Name:</strong> MANGLA GAURI SEVA SANSTHAN</p>
-                            <p><strong className="text-slate-800">Account Number:</strong> 0450018A0033160</p>
-                            <p><strong className="text-slate-800">IFSC Code:</strong> YESB0000450</p>
-                            <p><strong className="text-slate-800">Bank Name:</strong> YES BANK LTD</p>
-                            <p><strong className="text-slate-800">Branch Address:</strong> ALAMBAGH, LUCKNOW, UP</p>
-                          </div>
-                        </div>
-                        <div className="p-4 bg-yellow-50 rounded-2xl border border-yellow-100 text-xs text-yellow-800">
-                          Please mention your name in the transfer remarks. Once transferred, you can notify us on WhatsApp with a screenshot of the transaction.
-                        </div>
-                        <button 
-                          onClick={() => {
-                            setShowQRCode(false);
-                            setIsDonating(false);
-                          }}
-                          className="w-full text-center text-xs font-semibold text-slate-400 hover:text-slate-600 pt-2"
+                    <div className="flex flex-col items-center">
+                      <div className="bg-red-50 text-red-600 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-widest mb-6">
+                        UPI Payment Portal
+                      </div>
+                      
+                      <div className="bg-white p-6 rounded-[2rem] shadow-xl border-2 border-slate-100 mb-4 inline-block relative">
+                        <QRCodeSVG 
+                          value={`upi://pay?pa=manglagauri@sbi&pn=MANGLA%20GAURI%20SEVA%20SANSTHAN&am=${donationAmount}&cu=INR`}
+                          size={200}
+                          level="H"
+                          includeMargin={false}
+                        />
+                      </div>
+                      
+                      <div className="text-slate-900 font-serif font-extrabold text-3xl mb-4">
+                        ₹{donationAmount.toLocaleString()}
+                      </div>
+
+                      <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 max-w-sm w-full mb-6">
+                        <p className="text-xs text-slate-500 leading-relaxed font-medium">To complete donation:</p>
+                        <ol className="text-left text-xs text-slate-500 list-decimal pl-4 mt-2 space-y-1">
+                          <li>Open GooglePay, PhonePe, Paytm, or BHIM app</li>
+                          <li>Choose the scan QR code option</li>
+                          <li>Scan the QR code shown above</li>
+                          <li>Confirm payment of ₹{donationAmount}</li>
+                        </ol>
+                        <p className="text-[10px] text-slate-400 mt-3 text-center">Scan to pay with any UPI app</p>
+                      </div>
+
+                      <div className="w-full mt-2 space-y-4">
+                        <a 
+                          href={`upi://pay?pa=manglagauri@sbi&pn=MANGLA%20GAURI%20SEVA%20SANSTHAN&am=${donationAmount}&cu=INR`}
+                          className="w-full bg-slate-100 text-slate-900 py-3.5 rounded-xl font-bold text-sm text-center block md:hidden hover:bg-slate-200 transition-colors"
                         >
-                          Change Payment Method
-                        </button>
+                          Open in UPI App
+                        </a>
                       </div>
-                    ) : (
-                      <div className="flex flex-col items-center">
-                        <div className="bg-red-50 text-red-600 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-widest mb-6">
-                          UPI Payment Portal
-                        </div>
-                        
-                        <div className="bg-white p-6 rounded-[2rem] shadow-xl border-2 border-slate-100 mb-4 inline-block relative">
-                          <QRCodeSVG 
-                            value={`upi://pay?pa=MAB0450018A0033160@Yesbank&pn=MANGLA%20GAURI%20SEVA%20SANSTHAN&am=${donationAmount}&cu=INR`}
-                            size={200}
-                            level="H"
-                            includeMargin={false}
-                          />
-                        </div>
-                        
-                        <div className="text-slate-900 font-serif font-extrabold text-3xl mb-1">
-                          ₹{donationAmount.toLocaleString()}
-                        </div>
-                        
-                        <div className="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-6 flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping inline-block" />
-                          Session expires in {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                        </div>
-
-                        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 max-w-sm w-full mb-6">
-                          <p className="text-xs text-slate-500 leading-relaxed font-medium">To complete donation:</p>
-                          <ol className="text-left text-xs text-slate-500 list-decimal pl-4 mt-2 space-y-1">
-                            <li>Open GooglePay, PhonePe, Paytm, or BHIM app</li>
-                            <li>Choose the scan QR code option</li>
-                            <li>Scan the QR code shown above</li>
-                            <li>Confirm payment of ₹{donationAmount}</li>
-                          </ol>
-                          <p className="text-[10px] text-slate-400 mt-3 text-center">Scan to pay with any UPI app</p>
-                        </div>
-
-                        <div className="w-full mt-4 space-y-4">
-                          {isDonating ? (
-                            <div className="flex flex-col items-center gap-3 py-4">
-                              <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
-                              <p className="text-sm font-bold text-slate-900">Verifying Payment...</p>
-                            </div>
-                          ) : (
-                            <>
-                              <div className="flex items-center justify-center gap-2 py-2 text-red-500">
-                                 <Loader2 className="w-4 h-4 animate-spin" />
-                                 <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Awaiting UPI Confirmation...</span>
-                              </div>
-                                
-                              <a 
-                                href={`upi://pay?pa=MAB0450018A0033160@Yesbank&pn=MANGLA%20GAURI%20SEVA%20SANSTHAN&am=${donationAmount}&cu=INR`}
-                                className="w-full bg-slate-100 text-slate-900 py-3 rounded-xl font-bold text-sm text-center block md:hidden"
-                              >
-                                Open in UPI App
-                              </a>
-
-                              <button 
-                                onClick={() => {
-                                  setShowQRCode(false);
-                                  setIsDonating(false);
-                                }}
-                                className="w-full text-slate-400 text-sm font-medium hover:text-slate-600 pt-2"
-                              >
-                                Cancel & Change Amount
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                    </div>
                   </motion.div>
                 ) : donationStep === 1 ? (
                   <form 
@@ -930,105 +900,61 @@ export default function Layout({ children }: LayoutProps) {
                       </div>
 
                       <div>
-                        <label className="text-xs uppercase tracking-widest font-bold text-slate-400 block mb-3">Select Amount (INR)</label>
-                        <div className="grid grid-cols-3 gap-3">
+                        <label className="text-xs uppercase tracking-widest font-bold text-slate-400 block mb-2">Enter Amount (INR) / राशि दर्ज करें</label>
+                        <div className="relative mb-3.5">
+                          <div className="absolute inset-y-0 left-0 pl-4.5 flex items-center pointer-events-none">
+                            <span className="text-slate-500 font-extrabold text-lg">₹</span>
+                          </div>
+                          <input 
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="Enter Amount"
+                            value={donationAmount === 0 ? '' : donationAmount.toString()}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9]/g, '');
+                              const sanitized = val.replace(/^0+/, '');
+                              setDonationAmount(sanitized === '' ? 0 : parseInt(sanitized, 10));
+                            }}
+                            className="w-full py-4.5 pl-10 pr-4 rounded-2xl font-extrabold border-2 border-slate-100 focus:border-red-500 focus:outline-none text-slate-800 text-xl transition-colors shadow-inner"
+                          />
+                        </div>
+                        <div className="grid grid-cols-5 gap-1.5">
                           {[500, 1000, 2000, 5000, 10000].map(amt => (
                             <button 
                               key={amt}
                               onClick={() => setDonationAmount(amt)}
-                              className={`py-3 rounded-xl font-bold border-2 transition-all ${
+                              className={`py-2 rounded-xl font-bold border transition-all text-xs ${
                                 donationAmount === amt 
                                   ? 'bg-red-500 border-red-500 text-white' 
-                                  : 'bg-white border-slate-100 text-slate-600 hover:border-red-200'
+                                  : 'bg-white border-slate-150 text-slate-600 hover:border-red-300'
                               }`}
                             >
                               ₹{amt}
                             </button>
                           ))}
-                          <div className="relative">
-                            <input 
-                              type="text"
-                              inputMode="numeric"
-                              placeholder="Other"
-                              value={donationAmount === 0 ? '' : donationAmount.toString()}
-                              onChange={(e) => {
-                                const val = e.target.value.replace(/[^0-9]/g, '');
-                                const sanitized = val.replace(/^0+/, '');
-                                setDonationAmount(sanitized === '' ? 0 : parseInt(sanitized, 10));
-                              }}
-                              className="w-full h-full py-3 px-4 rounded-xl font-bold border-2 border-slate-100 focus:border-red-500 focus:outline-none text-slate-600 text-center"
-                            />
-                          </div>
                         </div>
                         {donationAmount > 0 && donationAmount < 50 && (
                           <p className="text-xs text-red-500 font-bold mt-1.5">Minimum donation amount is ₹50</p>
                         )}
                       </div>
 
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <label className="text-xs uppercase tracking-widest font-bold text-slate-400">Payment Method</label>
-                          <div className="grid grid-cols-3 gap-2">
-                            <button 
-                              onClick={() => setPaymentMethod('razorpay')}
-                              className={`flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-bold border-2 transition-all ${
-                                paymentMethod === 'razorpay' 
-                                  ? 'bg-red-50 border-red-500 text-red-600' 
-                                  : 'bg-white border-slate-100 text-slate-500 hover:border-red-200'
-                              }`}
-                            >
-                              <div className="w-4 h-4 rounded bg-[#0b2046] flex items-center justify-center text-[8px] text-cyan-400 font-serif font-black tracking-tighter">Rz</div>
-                              <span className="text-[10px] uppercase">Razorpay</span>
-                            </button>
-                            <button 
-                              onClick={() => setPaymentMethod('upi')}
-                              className={`flex flex-col items-center justify-center gap-1 py-3 rounded-xl font-bold border-2 transition-all ${
-                                paymentMethod === 'upi' 
-                                  ? 'bg-red-50 border-red-500 text-red-600' 
-                                  : 'bg-white border-slate-100 text-slate-500 hover:border-red-200'
-                              }`}
-                            >
-                              <div className="w-4 h-4 rounded bg-red-500 flex items-center justify-center text-[8px] text-white font-bold">QR</div>
-                              <span className="text-[10px] uppercase">UPI QR</span>
-                            </button>
-                            <button 
-                              onClick={() => setPaymentMethod('bank')}
-                              className={`flex flex-col items-center justify-center gap-1 py-3 rounded-xl font-bold border-2 transition-all ${
-                                paymentMethod === 'bank' 
-                                  ? 'bg-red-50 border-red-500 text-red-600' 
-                                  : 'bg-white border-slate-100 text-slate-500 hover:border-red-200'
-                              }`}
-                            >
-                              <Building className="w-4 h-4" />
-                              <span className="text-[10px] uppercase">Bank</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
                       <button 
-                        onClick={() => {
-                          if (paymentMethod === 'upi' || paymentMethod === 'bank') {
-                            setShowQRCode(true);
-                          } else {
-                            handleDonate();
-                          }
-                        }}
+                        onClick={handleUPIInitiate}
                         disabled={isDonating || donationAmount < 50}
                         className="w-full bg-red-500 text-white py-5 rounded-2xl font-bold text-lg hover:bg-red-600 transition-all flex items-center justify-center gap-3 shadow-xl shadow-red-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {isDonating ? (
-                          <>
-                            <Loader2 className="w-6 h-6 animate-spin" /> Processing...
-                          </>
+                          <span className="flex items-center gap-2 justify-center font-black uppercase tracking-[0.1em] text-xs">
+                            <Loader2 className="w-4 h-4 animate-spin" /> Initiating Payment...
+                          </span>
                         ) : (
                           <span className="flex items-center gap-2 justify-center font-black uppercase tracking-[0.1em] text-xs">
-                            Confirm donation of ₹{donationAmount}
+                            Proceed to Pay ₹{donationAmount} / भुगतान करें
                           </span>
                         )}
                       </button>
-                      <p className="text-[10px] text-center text-slate-400 uppercase tracking-widest">
-                        {paymentMethod === 'razorpay' ? 'Secure Payment via Razorpay (UPI, Card, NetBanking, Wallet)' : 'UPI Payment with amount pre-filled'}
+                      <p className="text-[10px] text-center text-slate-400 uppercase tracking-widest font-semibold">
+                        Secure UPI QR Code Payment Option
                       </p>
                     </div>
                   </>

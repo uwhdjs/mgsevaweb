@@ -406,7 +406,7 @@ export default function ContactPage() {
                   >
                     <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-5 inline-block">
                       <QRCodeSVG 
-                        value="upi://pay?pa=MAB0450018A0033160@Yesbank&pn=MANGLA%20GAURI%20SEVA%20SANSTHAN"
+                        value="upi://pay?pa=manglagauri@sbi&pn=MANGLA%20GAURI%20SEVA%20SANSTHAN"
                         size={150}
                         level="H"
                         includeMargin={false}
@@ -414,7 +414,7 @@ export default function ContactPage() {
                     </div>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">UPI DONATION CODE</p>
                     <a 
-                      href="upi://pay?pa=MAB0450018A0033160@Yesbank&pn=MANGLA%20GAURI%20SEVA%20SANSTHAN"
+                      href="upi://pay?pa=manglagauri@sbi&pn=MANGLA%20GAURI%20SEVA%20SANSTHAN"
                       className="w-full text-center bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
                     >
                       Pay Directly via UPI

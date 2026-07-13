@@ -37,26 +37,34 @@ function GallerySection() {
   ];
 
   const galleryItems = [
-    { img: IMAGES.foodService, category: "Hunger Relief", title: "Needy Persons Food Distribution", description: "Serving nutritious warm meals to families near Lucknow." },
-    { img: IMAGES.relief1, category: "Hunger Relief", title: "Ration & Food Kits Drive", description: "Direct supply kits delivered to laborers in need." },
-    { img: IMAGES.gallery7, category: "Hunger Relief", title: "Community Feast (Bhandara)", description: "Lucrative hot lunches prepared by our volunteers." },
-    { img: IMAGES.bloodCamp, category: "Blood Donation", title: "Annual Blood Donation Camp", description: "Blood units mobilized to fill government hospital stocks." },
-    { img: IMAGES.bloodVan, category: "Blood Donation", title: "Blood Drive Collection Unit", description: "Convenient camps scheduled at accessible Lucknow points." },
-    { img: IMAGES.gallery3, category: "Blood Donation", title: "Emergency Donor Drive", description: "Volunteers answering the call for rare blood groups." },
+    { img: IMAGES.foodService, category: "Child Education", title: "Needy Persons Food Distribution", description: "Serving nutritious warm meals to families near Lucknow." },
+    { img: IMAGES.distribution, category: "Blood Donation", title: "Ration & Food Kits Drive", description: "Direct supply kits delivered to laborers in need." },
+    { img: IMAGES.bloodCamp, category: "Child Education", title: "Annual Blood Donation Camp", description: "Blood units mobilized to fill government hospital stocks." },
+    { img: IMAGES.bloodVan, category: "Hunger Relief", title: "Blood Drive Collection Unit", description: "Convenient camps scheduled at accessible Lucknow points." },
+    { img: IMAGES.gallery3, category: "Winter Relief", title: "Emergency Donor Drive", description: "Volunteers answering the call for rare blood groups." },
     { img: IMAGES.gallery4, category: "Blood Donation", title: "Donor Felicitation Event", description: "Celebrating active community heroes in Alambagh." },
-    { img: IMAGES.handicapSupport, category: "Specially-Abled", title: "Wheelchair Distribution", description: "Helping physically-challenged individuals gain mobility." },
+    { img: IMAGES.handicapSupport, category: "Hunger Relief", title: "Wheelchair Distribution", description: "Helping physically-challenged individuals gain mobility." },
     { img: IMAGES.gallery2, category: "Specially-Abled", title: "Tricycle Aids Distribution", description: "Promoting functional independence for specially-abled Lucknow residents." },
-    { img: IMAGES.volunteer1, category: "Specially-Abled", title: "Prosthetic Fitting Sessions", description: "Personal support and fitting adjustments." },
-    { img: IMAGES.education, category: "Child Education", title: "Free Slum Evening Classes", description: "Bringing foundational subjects and joy to young minds." },
-    { img: IMAGES.gallery5, category: "Child Education", title: "Book & Stationery Kits", description: "Full stationery packs handed to local students." },
-    { img: IMAGES.bannerKids, category: "Child Education", title: "Smiles of Tomorrow School", description: "Fun, active group mentoring sessions with youth volunteers." },
-    { img: IMAGES.gallery6, category: "Winter Relief", title: "Blanket Distribution Campaign", description: "Protecting footpath residents during severe winter drops." },
-    { img: IMAGES.distribution, category: "Winter Relief", title: "Warm Woolen Clothes Drive", description: "Distributing clean, warm clothing to children in slums." },
-    { img: IMAGES.treePlantation, category: "Environmental Care", title: "Tree Planting Initiative", description: "Planting native trees to build clean Lucknow neighborhoods." },
-    { img: IMAGES.gathering, category: "Environmental Care", title: "Cleanliness Campaign", description: "Educating residents on local waste segregation." },
+    { img: IMAGES.education, category: "Winter Relief", title: "Free Slum Evening Classes", description: "Bringing foundational subjects and joy to young minds." },
+    { img: IMAGES.gallery5, category: "Blood Donation", title: "Book & Stationery Kits", description: "Full stationery packs handed to local students." },
+    { img: IMAGES.gallery6, category: "Hunger Relief", title: "Blanket Distribution Campaign", description: "Protecting footpath residents during severe winter drops." },
+    { img: IMAGES.relief1, category: "Hunger Relief", title: "Warm Woolen Clothes Drive", description: "Distributing clean, warm clothing to children in slums." },
+    { img: IMAGES.treePlantation, category: "Child Education", title: "Tree Planting Initiative", description: "Planting native trees to build clean Lucknow neighborhoods." },
+    { img: IMAGES.gathering, category: "Hunger Relief", title: "Cleanliness Campaign", description: "Educating residents on local waste segregation." },
     { img: IMAGES.medicalCamp, category: "Healthcare Camps", title: "Free General Medical Checkups", description: "Diagnosing primary issues and educating on family hygiene." },
-    { img: IMAGES.healthcare, category: "Healthcare Camps", title: "Essential Medicines Camp", description: "Dispensing free standard prescriptions to elderly people." },
-    { img: IMAGES.communityService, category: "Community Service", title: "Active Volunteer Meetup", description: "Aligning and planning weekly social welfare programs." }
+    { img: IMAGES.healthcare, category: "Environmental Care", title: "Essential Medicines Camp", description: "Dispensing free standard prescriptions to elderly people." },
+    { img: IMAGES.communityService, category: "Community Service", title: "Active Volunteer Meetup", description: "Aligning and planning weekly social welfare programs." },
+    { img: IMAGES.uploadField, category: "Environmental Care", title: "Field Visit and Survey", description: "Checking on local agricultural development initiatives." },
+    { img: IMAGES.uploadStreetFood, category: "Hunger Relief", title: "Street Food Drive", description: "Serving warm nutritious street food to children." },
+    { img: IMAGES.uploadBhandara, category: "Hunger Relief", title: "Bhandara Hot Food Preparation", description: "Preparing mass hot meals for community members." },
+    { img: IMAGES.uploadRation, category: "Hunger Relief", title: "Ration Boxes", description: "Distributing packed food ration boxes to laborers." },
+    { img: IMAGES.uploadFittingShoes, category: "Child Education", title: "School Footwear Fitting", description: "Providing properly-fitted school shoes to children." },
+    { img: IMAGES.uploadClassroom, category: "Child Education", title: "Classroom Kits", description: "Distributing stationery and accessories to students." },
+    { img: IMAGES.uploadHospital, category: "Healthcare Camps", title: "Compassionate Ward Visits", description: "Checking on recovering patients in general hospital wards." },
+    { img: IMAGES.uploadDisabledCharity, category: "Specially-Abled", title: "Assistive Devices Charity", description: "Distributing prosthetics and support devices." },
+    { img: IMAGES.uploadSapling, category: "Environmental Care", title: "Tree Planting Initiative", description: "Adding native green saplings to community areas." },
+    { img: IMAGES.uploadSweater, category: "Winter Relief", title: "Sweater Distribution", description: "Providing woolen sweaters to children during winter cold." },
+    { img: IMAGES.uploadBlanket, category: "Winter Relief", title: "Blanket Distribution Campaign", description: "Distributing warm blankets to pavement dwellers." }
   ];
 
   const filteredItems = selectedCategory === 'All' 
@@ -102,22 +110,9 @@ function GallerySection() {
                 <img 
                   src={item.img} 
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                  alt={item.title} 
+                  alt="" 
                   referrerPolicy="no-referrer"
                 />
-                <span className="absolute top-4 left-4 bg-slate-900/85 backdrop-blur-sm text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                  {item.category}
-                </span>
-              </div>
-              <div className="p-5 flex-grow flex flex-col justify-between">
-                <div>
-                  <h4 className="text-base font-bold text-slate-900 group-hover:text-red-500 transition-colors line-clamp-1 mb-1">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-                    {item.description}
-                  </p>
-                </div>
               </div>
             </motion.div>
           ))}
@@ -181,13 +176,17 @@ export default function ActivitiesPage() {
                 className="group bg-white rounded-[2.5rem] p-4 border border-slate-100 hover:shadow-xl transition-all"
                 id={`activity-item-${idx}`}
               >
-                <div className="aspect-video rounded-[2rem] overflow-hidden mb-6 relative">
-                  <img 
-                    src={activity.image} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                    alt={activity.title} 
-                    referrerPolicy="no-referrer"
-                  />
+                <div className="aspect-video rounded-[2rem] overflow-hidden mb-6 relative bg-slate-100 flex items-center justify-center">
+                  {activity.image ? (
+                    <img 
+                      src={activity.image} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      alt={activity.title} 
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="text-slate-400/80 text-xs tracking-wider uppercase font-medium">No Image Available</div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                     <button 
                       onClick={() => triggerDonationModal(1000)}

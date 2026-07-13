@@ -9,7 +9,7 @@ export enum OperationType {
   WRITE = 'write',
 }
 
-export const IMAGES = {
+const rawImages = {
   treePlantation: "https://lh3.googleusercontent.com/d/17v_5m2wDqGHeThg5Ba8gBqheh8z1SSz-",
   bloodVan: "https://lh3.googleusercontent.com/d/1v9E0atC8sJxTdTBTtYp-QKZospj9z4dU",
   education: "https://lh3.googleusercontent.com/d/1ZTtCPrerpI_O1kNkYsl1-o6sauydzfcw",
@@ -29,10 +29,30 @@ export const IMAGES = {
   medicalCamp: "https://lh3.googleusercontent.com/d/1HhUPBIIPkAapAHotXrHVS6oNcBh0KWEO",
   volunteer1: "https://lh3.googleusercontent.com/d/1UHFvuXEMlecLidzX8PqLbOZBKymkss-z",
   relief1: "https://lh3.googleusercontent.com/d/1HMY4Foq8onQJbTTZ-S1YlwWSvgyfOvD3",
-  gathering: "https://lh3.googleusercontent.com/d/1oMs7qizlDQuaacqWMI2_eeK9klsILD38",
+  gathering: "https://lh3.googleusercontent.com/d/1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD",
   gallery6: "https://lh3.googleusercontent.com/d/1Cpk5xmHMMJkjItkbrenv6fE-YzrQi9Ax",
-  gallery7: "https://lh3.googleusercontent.com/d/1g-ktQGifp3_fcXtEVn8gr0IeDxmrM5_-"
+  gallery7: "https://lh3.googleusercontent.com/d/1g-ktQGifp3_fcXtEVn8gr0IeDxmrM5_-",
+  uploadField: "https://images.unsplash.com/photo-1592997573659-3b22300b4a6a?auto=format&fit=crop&q=80&w=800",
+  uploadStreetFood: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=800",
+  uploadBhandara: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&q=80&w=800",
+  uploadRation: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=800",
+  uploadFittingShoes: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=800",
+  uploadClassroom: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=800",
+  uploadHospital: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=800",
+  uploadDisabledCharity: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=800",
+  uploadSapling: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
+  uploadSweater: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=800",
+  uploadBlanket: "https://images.unsplash.com/photo-1541802645635-11f2286a7482?auto=format&fit=crop&q=80&w=800"
 };
+
+export const IMAGES = Object.fromEntries(
+  Object.entries(rawImages).map(([key, value]) => [
+    key,
+    value.includes("lh3.googleusercontent.com")
+      ? `/api/proxy-image?url=${encodeURIComponent(value)}`
+      : value
+  ])
+) as typeof rawImages;
 
 export interface ActivityType {
   title: string;
@@ -43,34 +63,34 @@ export interface ActivityType {
 
 export const ACTIVITIES: ActivityType[] = [
   {
+    title: "Winter Relief",
+    description: "Distributing warm clothes and blankets to help the underprivileged survive the harsh winter nights in Lucknow.",
+    iconName: "Heart",
+    image: IMAGES.education
+  },
+  {
     title: "Blood Donation Camps",
     description: "Regularly organizing camps to ensure a steady supply of blood to those in need, saving countless lives through community action.",
     iconName: "Droplets",
-    image: IMAGES.gallery4
+    image: IMAGES.bloodCamp
   },
   {
     title: "Hunger Relief",
     description: "Providing nutrition through community feasts and regular food distribution drives in slums and for those struggling in Alambagh, Lucknow.",
     iconName: "Utensils",
-    image: IMAGES.relief1
+    image: ""
   },
   {
     title: "Environmental Care",
     description: "Actively participating in plantation drives to keep our city green and combat climate change.",
     iconName: "TreePine",
-    image: IMAGES.gathering
+    image: IMAGES.gallery6
   },
   {
     title: "Supporting Disabled",
     description: "Empowering our specially-abled brothers and sisters through mobility support distributions and community inclusion.",
     iconName: "Users",
-    image: IMAGES.gallery2
-  },
-  {
-    title: "Winter Relief",
-    description: "Distributing warm clothes and blankets to help the underprivileged survive the harsh winter nights in Lucknow.",
-    iconName: "Heart",
-    image: IMAGES.education
+    image: IMAGES.handicapSupport
   },
   {
     title: "Child Education",
@@ -88,7 +108,7 @@ export const TESTIMONIALS = [
   },
   {
     name: "Suman Lata",
-    text: "Under their Child Education program, my daughter received stationary, books, and regular guidance. They are doing incredible work for the children of underprivileged families in our slum area.",
+    text: "Under their Child Education program, my daughter received stationery, books, and regular guidance. They are doing incredible work for the children of underprivileged families in our slum area.",
     location: "LDA Colony, Lucknow"
   },
   {
@@ -103,7 +123,7 @@ export const TESTIMONIALS = [
   },
   {
     name: "Rohan Gupta",
-    text: "The events organized by them are not only about winning or distributing but also about teamwork, discipline, safety, and community participation. It is a meaningful experience to support this Lucknow initiative.",
+    text: "The events organized by them are not only about giving or distributing but also about teamwork, discipline, safety, and community participation. It is a meaningful experience to support this Lucknow initiative.",
     location: "Deoria, Uttar Pradesh"
   }
 ];

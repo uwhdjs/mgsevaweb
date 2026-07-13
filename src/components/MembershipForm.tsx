@@ -91,7 +91,7 @@ export default function MembershipForm() {
         ...formData,
         createdAt: serverTimestamp(),
       });
-      const amount = formData.membershipOption === 'Basic Membership' ? 1000 : 2000;
+      const amount = formData.membershipOption === 'Basic Membership' ? 1000 : 500;
       setSubmitStatus('success');
       setTimeout(() => navigate(`/?donate=true&amount=${amount}&name=${encodeURIComponent(formData.name)}&email=${encodeURIComponent(formData.email)}`), 2000);
     } catch (error: any) {
@@ -294,7 +294,7 @@ export default function MembershipForm() {
                   />
                   <div>
                     <p className="font-black uppercase tracking-widest text-xs">Basic Membership</p>
-                    <p className="text-[10px] opacity-60">One-time enrollment</p>
+                    <p className="text-[10px] opacity-60">One Year Enrollment</p>
                   </div>
                 </div>
                 <span className="font-mono font-bold text-orange-500">Rs. 1000/-</span>
@@ -319,7 +319,7 @@ export default function MembershipForm() {
                     <p className="text-[10px] opacity-60">Become a recurring supporter</p>
                   </div>
                 </div>
-                <span className="font-mono font-bold text-orange-500">Rs. 2000/-</span>
+                <span className="font-mono font-bold text-orange-500">Rs. 500/-</span>
               </label>
             </div>
           </div>

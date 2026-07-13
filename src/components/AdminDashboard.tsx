@@ -41,7 +41,7 @@ const ADMIN_IMAGES = {
     "https://lh3.googleusercontent.com/d/1HhUPBIIPkAapAHotXrHVS6oNcBh0KWEO",
     "https://lh3.googleusercontent.com/d/1WwVv_KCksvBZVyyugCc0LWaKDOb5zegl",
     "https://lh3.googleusercontent.com/d/1HMY4Foq8onQJbTTZ-S1YlwWSvgyfOvD3",
-    "https://lh3.googleusercontent.com/d/1oMs7qizlDQuaacqWMI2_eeK9klsILD38",
+    "https://lh3.googleusercontent.com/d/1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD",
     "https://lh3.googleusercontent.com/d/1nagW4m1xGi4WSACn9OGlSxiKobOg6NL2",
     "https://lh3.googleusercontent.com/d/17v_5m2wDqGHeThg5Ba8gBqheh8z1SSz-",
     "https://lh3.googleusercontent.com/d/1kR_rf0EMOoooTP9LYRzhVzTxN5Bym21O",

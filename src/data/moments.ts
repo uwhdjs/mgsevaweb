@@ -125,7 +125,7 @@ export const YEAR_WISE_MOMENTS: Record<number, YearMoments> = {
         date: "July 2018",
         description: "Planting neem, banyan, and peepal trees across parks and roadsides to combat urban heat.",
         longDescription: "To counter Lucknow's rising urban temperatures, our youth wing initiated the 'Green Alambagh' project. Volunteers planted 500 saplings in Alambagh, Alambagh Railway Colony, and local schools, securing commitments from residents to water and safeguard them.",
-        image: "https://lh3.googleusercontent.com/d/1oMs7qizlDQuaacqWMI2_eeK9klsILD38",
+        image: "https://lh3.googleusercontent.com/d/1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD",
         category: "environment",
         stats: [
           { label: "Saplings Planted", value: "500+" },

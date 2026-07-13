@@ -466,6 +466,73 @@ async function startServer() {
     }
   });
 
+  // Image proxy route to serve Google Drive and external images reliably
+  app.get("/api/proxy-image", async (req, res) => {
+    try {
+      let imageUrl = req.query.url as string;
+      if (!imageUrl) {
+        return res.status(400).send("URL parameter is required");
+      }
+
+      // If it is a Google Drive Link, construct alternate URLs to try
+      const urlsToTry = [imageUrl];
+      if (imageUrl.includes("lh3.googleusercontent.com/d/")) {
+        const id = imageUrl.split("/d/")[1]?.split(/[?#]/)[0];
+        if (id) {
+          urlsToTry.push(`https://drive.google.com/uc?export=download&id=${id}`);
+          urlsToTry.push(`https://docs.google.com/uc?export=download&id=${id}`);
+        }
+      } else if (imageUrl.includes("drive.google.com")) {
+        try {
+          const urlObj = new URL(imageUrl);
+          let id = urlObj.searchParams.get("id");
+          if (!id) {
+            const match = imageUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match) {
+              id = match[1];
+            }
+          }
+          if (id) {
+            urlsToTry.push(`https://lh3.googleusercontent.com/d/${id}`);
+            urlsToTry.push(`https://docs.google.com/uc?export=download&id=${id}`);
+          }
+        } catch (e) {}
+      }
+
+      let response: any = null;
+      let lastError: any = null;
+
+      for (const url of urlsToTry) {
+        try {
+          response = await fetch(url, {
+            headers: {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            }
+          });
+          if (response.ok) {
+            break;
+          }
+        } catch (err) {
+          lastError = err;
+        }
+      }
+
+      if (!response || !response.ok) {
+        throw new Error(response ? `Status ${response.status}` : lastError?.message || "Unknown error");
+      }
+
+      const contentType = response.headers.get("content-type") || "image/jpeg";
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Cache-Control", "public, max-age=86400");
+      
+      const buffer = Buffer.from(await response.arrayBuffer());
+      res.send(buffer);
+    } catch (error: any) {
+      console.error("Image proxy error for", req.query.url, ":", error.message);
+      res.status(500).send("Error proxying image");
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

@@ -16,7 +16,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../App';
-import { TESTIMONIALS, ACTIVITIES } from '../types';
+import { TESTIMONIALS, ACTIVITIES, IMAGES } from '../types';
 
 const IconMap = {
   Droplets: <Droplets className="w-6 h-6 text-red-500" />,
@@ -75,12 +75,15 @@ export default function Home() {
       <header className="relative w-full min-h-[500px] md:min-h-[580px] bg-slate-950 overflow-hidden flex items-end">
         {/* Background Image Container */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-slate-950/40 z-10" />
+          <div className="absolute inset-0 bg-slate-950/50 z-10" />
           <motion.img 
             initial={{ scale: 1.1, opacity: 0 }}
-            animate={{ scale: 1, opacity: 0.65 }}
+            animate={{ scale: 1, opacity: 0.55 }}
             transition={{ duration: 1.5 }}
-            src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=1200"
+            src="/api/proxy-image?url=https%3A%2F%2Fdrive.google.com%2Ffile%2Fd%2F1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD%2Fview%3Fusp%3Dsharing"
+            onError={(e) => {
+              e.currentTarget.src = "/background.jpg";
+            }}
             className="w-full h-full object-cover" 
             alt="NGO Banner Kids" 
             referrerPolicy="no-referrer"
@@ -203,13 +206,17 @@ export default function Home() {
                 className="group bg-white rounded-[2.5rem] p-4 border border-slate-100 hover:shadow-xl transition-all"
                 id={`home-activity-item-${idx}`}
               >
-                <div className="aspect-video rounded-[2rem] overflow-hidden mb-6 relative bg-slate-100">
-                  <img 
-                    src={activity.image} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                    alt={activity.title} 
-                    referrerPolicy="no-referrer"
-                  />
+                <div className="aspect-video rounded-[2rem] overflow-hidden mb-6 relative bg-slate-100 flex items-center justify-center">
+                  {activity.image ? (
+                    <img 
+                      src={activity.image} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      alt={activity.title} 
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="text-slate-400/80 text-xs tracking-wider uppercase font-medium">No Image Available</div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                     <button 
                       onClick={() => triggerDonationModal(1000)}
@@ -266,28 +273,28 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative min-h-[300px] flex items-center justify-center">
+          <div className="relative min-h-[340px] sm:min-h-[280px] md:min-h-[240px] flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeReviewIndex}
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -50 }}
-                transition={{ duration: 0.4 }}
-                className="w-full max-w-4xl bg-slate-50 border border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-sm relative"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="w-full max-w-4xl bg-[#fcfbf9]/40 border border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-sm relative min-h-[340px] sm:min-h-[280px] md:min-h-[240px] flex flex-col justify-between hover:border-red-100 transition-colors duration-300"
               >
-                {/* Large double quotes logo at top-left */}
-                <div className="absolute top-8 left-8 text-red-500/10 pointer-events-none">
-                  <Quote className="w-20 h-20 fill-current" />
+                {/* Large double quotes watermark offset to avoid text overlapping */}
+                <div className="absolute top-6 left-6 md:top-8 md:left-8 text-red-500/[0.05] pointer-events-none z-0">
+                  <Quote className="w-16 h-16 md:w-24 md:h-24 fill-current" />
                 </div>
 
-                <div className="relative z-10 space-y-6 md:space-y-8 pl-4">
-                  <p className="text-lg md:text-2xl text-slate-700 font-serif leading-relaxed italic">
+                <div className="relative z-10 space-y-6 md:space-y-8 pl-6 md:pl-12 flex flex-col justify-between h-full flex-grow">
+                  <p className="text-base sm:text-lg md:text-2xl text-slate-700 font-serif leading-relaxed italic">
                     "{TESTIMONIALS[activeReviewIndex].text}"
                   </p>
                   
-                  <div>
-                    <span className="text-emerald-600 font-black text-lg md:text-xl block">
+                  <div className="pt-4 border-t border-slate-100/60">
+                    <span className="text-red-600 font-black text-lg md:text-xl block leading-snug">
                       {TESTIMONIALS[activeReviewIndex].name}
                     </span>
                     <span className="text-xs uppercase tracking-widest text-slate-400 font-bold block mt-1">
