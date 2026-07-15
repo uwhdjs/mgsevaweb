@@ -233,7 +233,7 @@ export default function MembershipForm() {
               label="Communication Address" 
               value={formData.address} 
               onChange={(e: any) => setFormData({...formData, address: e.target.value})} 
-              placeholder="Full mailing address"
+              placeholder="Residential address with pin code"
             />
           </div>
 

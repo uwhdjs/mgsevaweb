@@ -10,7 +10,7 @@ export enum OperationType {
 }
 
 const rawImages = {
-  treePlantation: "https://lh3.googleusercontent.com/d/17v_5m2wDqGHeThg5Ba8gBqheh8z1SSz-",
+  treePlantation: "https://lh3.googleusercontent.com/d/14kCOgRuVi6zc89HtVjBvKISdUz8igob8",
   bloodVan: "https://lh3.googleusercontent.com/d/1v9E0atC8sJxTdTBTtYp-QKZospj9z4dU",
   education: "https://lh3.googleusercontent.com/d/1ZTtCPrerpI_O1kNkYsl1-o6sauydzfcw",
   distribution: "https://lh3.googleusercontent.com/d/1kR_rf0EMOoooTP9LYRzhVzTxN5Bym21O",
@@ -25,32 +25,48 @@ const rawImages = {
   gallery3: "https://lh3.googleusercontent.com/d/1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD",
   gallery4: "https://lh3.googleusercontent.com/d/1H_BSJJQqzMwPIb6rPdnx2CbK6wEIDr5k",
   gallery5: "https://lh3.googleusercontent.com/d/1B1pWQ_nkMLwMJGUfzTp7KnRVNjaeUmSH",
-  communityService: "https://lh3.googleusercontent.com/d/1WOXeu4naHk4NUlV_d-fN_A7pb14aAaH3",
+  communityService: "https://lh3.googleusercontent.com/d/1w0G-hxirOls8MrTyHiJyVdESda7dqs4p",
   medicalCamp: "https://lh3.googleusercontent.com/d/1HhUPBIIPkAapAHotXrHVS6oNcBh0KWEO",
   volunteer1: "https://lh3.googleusercontent.com/d/1UHFvuXEMlecLidzX8PqLbOZBKymkss-z",
   relief1: "https://lh3.googleusercontent.com/d/1HMY4Foq8onQJbTTZ-S1YlwWSvgyfOvD3",
-  gathering: "https://lh3.googleusercontent.com/d/1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD",
+  gathering: "https://lh3.googleusercontent.com/d/17v_5m2wDqGHeThg5Ba8gBqheh8z1SSz-",
   gallery6: "https://lh3.googleusercontent.com/d/1Cpk5xmHMMJkjItkbrenv6fE-YzrQi9Ax",
   gallery7: "https://lh3.googleusercontent.com/d/1g-ktQGifp3_fcXtEVn8gr0IeDxmrM5_-",
-  uploadField: "https://images.unsplash.com/photo-1592997573659-3b22300b4a6a?auto=format&fit=crop&q=80&w=800",
-  uploadStreetFood: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=800",
-  uploadBhandara: "https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&q=80&w=800",
-  uploadRation: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=800",
-  uploadFittingShoes: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=800",
-  uploadClassroom: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=800",
-  uploadHospital: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&q=80&w=800",
-  uploadDisabledCharity: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=800",
-  uploadSapling: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=800",
-  uploadSweater: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=800",
-  uploadBlanket: "https://images.unsplash.com/photo-1541802645635-11f2286a7482?auto=format&fit=crop&q=80&w=800"
+  uploadField: "https://lh3.googleusercontent.com/d/1s7kkVOmkMIuUF9Lbc2Yn3nn-4eUTiekg",
+  uploadStreetFood: "https://lh3.googleusercontent.com/d/1nyMNCEhBESUSk9YtupaMI4dZhA89fdrH",
+  uploadBhandara: "https://lh3.googleusercontent.com/d/1dG_nNMGKo9xYptqEiqasqFsuxeawPydU",
+  uploadRation: "https://lh3.googleusercontent.com/d/1vh6B6VpbQcjpg5RXjkm4yVeusy834LVp",
+  uploadFittingShoes: "https://lh3.googleusercontent.com/d/1WwVv_KCksvBZVyyugCc0LWaKDOb5zegl",
+  uploadClassroom: "https://lh3.googleusercontent.com/d/1yp3FVxOq3bzvAnTTpFoAvxyJW3OSS7er",
+  uploadHospital: "https://lh3.googleusercontent.com/d/1AY0onyFhnArj02R-UhFdI4SsvwS2CUHQ",
+  uploadDisabledCharity: "https://lh3.googleusercontent.com/d/1KAkkFGRQA_m7TeHnQwaUQKVIH029rQ6U",
+  uploadSapling: "https://lh3.googleusercontent.com/d/1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD",
+  uploadSweater: "https://lh3.googleusercontent.com/d/1HMY4Foq8onQJbTTZ-S1YlwWSvgyfOvD3",
+  uploadBlanket: "https://lh3.googleusercontent.com/d/1Cpk5xmHMMJkjItkbrenv6fE-YzrQi9Ax"
 };
+
+export function getProxiedOrDirectUrl(url: string): string {
+  if (!url) return '';
+  
+  if (url.includes("lh3.googleusercontent.com") || url.includes("drive.google.com")) {
+    if (url.includes("drive.google.com")) {
+      const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        return `https://lh3.googleusercontent.com/d/${match[1]}`;
+      }
+    }
+    if (url.includes("lh3.googleusercontent.com")) {
+      return url;
+    }
+  }
+  
+  return url;
+}
 
 export const IMAGES = Object.fromEntries(
   Object.entries(rawImages).map(([key, value]) => [
     key,
-    value.includes("lh3.googleusercontent.com")
-      ? `/api/proxy-image?url=${encodeURIComponent(value)}`
-      : value
+    getProxiedOrDirectUrl(value)
   ])
 ) as typeof rawImages;
 
@@ -66,37 +82,37 @@ export const ACTIVITIES: ActivityType[] = [
     title: "Winter Relief",
     description: "Distributing warm clothes and blankets to help the underprivileged survive the harsh winter nights in Lucknow.",
     iconName: "Heart",
-    image: IMAGES.education
+    image: IMAGES.uploadBhandara
   },
   {
     title: "Blood Donation Camps",
     description: "Regularly organizing camps to ensure a steady supply of blood to those in need, saving countless lives through community action.",
     iconName: "Droplets",
-    image: IMAGES.bloodCamp
+    image: IMAGES.gallery4
   },
   {
     title: "Hunger Relief",
     description: "Providing nutrition through community feasts and regular food distribution drives in slums and for those struggling in Alambagh, Lucknow.",
     iconName: "Utensils",
-    image: ""
+    image: IMAGES.relief1
   },
   {
     title: "Environmental Care",
     description: "Actively participating in plantation drives to keep our city green and combat climate change.",
     iconName: "TreePine",
-    image: IMAGES.gallery6
+    image: IMAGES.treePlantation
   },
   {
     title: "Supporting Disabled",
     description: "Empowering our specially-abled brothers and sisters through mobility support distributions and community inclusion.",
     iconName: "Users",
-    image: IMAGES.handicapSupport
+    image: IMAGES.gallery2
   },
   {
     title: "Child Education",
     description: "Reaching out to children in local schools to provide stationery, books, and educational guidance for a brighter future.",
     iconName: "School",
-    image: IMAGES.treePlantation
+    image: IMAGES.uploadClassroom
   }
 ];
 

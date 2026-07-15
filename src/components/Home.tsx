@@ -16,7 +16,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../App';
-import { TESTIMONIALS, ACTIVITIES, IMAGES } from '../types';
+import { TESTIMONIALS, ACTIVITIES, IMAGES, getProxiedOrDirectUrl } from '../types';
 
 const IconMap = {
   Droplets: <Droplets className="w-6 h-6 text-red-500" />,
@@ -80,7 +80,7 @@ export default function Home() {
             initial={{ scale: 1.1, opacity: 0 }}
             animate={{ scale: 1, opacity: 0.55 }}
             transition={{ duration: 1.5 }}
-            src="/api/proxy-image?url=https%3A%2F%2Fdrive.google.com%2Ffile%2Fd%2F1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD%2Fview%3Fusp%3Dsharing"
+            src={getProxiedOrDirectUrl("https://lh3.googleusercontent.com/d/1rrRZ13jmL4GLTXBDt4UnqUleHEQRpkWD")}
             onError={(e) => {
               e.currentTarget.src = "/background.jpg";
             }}
@@ -206,26 +206,24 @@ export default function Home() {
                 className="group bg-white rounded-[2.5rem] p-4 border border-slate-100 hover:shadow-xl transition-all"
                 id={`home-activity-item-${idx}`}
               >
-                <div className="aspect-video rounded-[2rem] overflow-hidden mb-6 relative bg-slate-100 flex items-center justify-center">
-                  {activity.image ? (
+                {activity.image && (
+                  <div className="aspect-video rounded-[2rem] overflow-hidden mb-6 relative bg-slate-100 flex items-center justify-center">
                     <img 
                       src={activity.image} 
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                       alt={activity.title} 
                       referrerPolicy="no-referrer"
                     />
-                  ) : (
-                    <div className="text-slate-400/80 text-xs tracking-wider uppercase font-medium">No Image Available</div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                    <button 
-                      onClick={() => triggerDonationModal(1000)}
-                      className="text-white text-xs font-bold bg-red-500 px-4 py-2 rounded-xl transition-all active:scale-95 hover:bg-red-600"
-                    >
-                      Support This Drive
-                    </button>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                      <button 
+                        onClick={() => triggerDonationModal(1000)}
+                        className="text-white text-xs font-bold bg-red-500 px-4 py-2 rounded-xl transition-all active:scale-95 hover:bg-red-600"
+                      >
+                        Support This Drive
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="px-4 pb-6">
                   <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center mb-4 transition-colors group-hover:bg-red-500/10">
                     {IconMap[activity.iconName as keyof typeof IconMap]}
